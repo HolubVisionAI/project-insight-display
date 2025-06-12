@@ -50,10 +50,18 @@ const AdminDashboard = () => {
             <Link to="/">
               <Button variant="outline">View Site</Button>
             </Link>
-            <Button>
-              <Plus size={16} className="mr-2" />
-              New Project
-            </Button>
+            <Link to="/admin/users">
+              <Button variant="outline">
+                <Users size={16} className="mr-2" />
+                Users
+              </Button>
+            </Link>
+            <Link to="/admin/add-project">
+              <Button>
+                <Plus size={16} className="mr-2" />
+                New Project
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -152,9 +160,11 @@ const AdminDashboard = () => {
                             <Eye size={14} />
                           </Button>
                         </Link>
-                        <Button variant="ghost" size="sm">
-                          <Edit size={14} />
-                        </Button>
+                        <Link to={`/admin/edit-project/${project.id}`}>
+                          <Button variant="ghost" size="sm">
+                            <Edit size={14} />
+                          </Button>
+                        </Link>
                         <Button variant="ghost" size="sm">
                           <Trash2 size={14} />
                         </Button>
