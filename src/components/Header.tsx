@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,9 +18,9 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <div className="font-bold text-xl text-primary">
+        <Link to="/" className="font-bold text-xl text-primary">
           Jane Doe
-        </div>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-8">
@@ -36,12 +37,16 @@ const Header = () => {
 
         {/* Auth Buttons */}
         <div className="hidden md:flex space-x-2">
-          <Button variant="ghost" size="sm">
-            Login
-          </Button>
-          <Button size="sm">
-            Admin
-          </Button>
+          <Link to="/login">
+            <Button variant="ghost" size="sm">
+              Login
+            </Button>
+          </Link>
+          <Link to="/admin">
+            <Button size="sm">
+              Admin
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -70,12 +75,16 @@ const Header = () => {
               </a>
             ))}
             <div className="pt-4 border-t border-border space-y-2">
-              <Button variant="ghost" size="sm" className="w-full">
-                Login
-              </Button>
-              <Button size="sm" className="w-full">
-                Admin
-              </Button>
+              <Link to="/login">
+                <Button variant="ghost" size="sm" className="w-full">
+                  Login
+                </Button>
+              </Link>
+              <Link to="/admin">
+                <Button size="sm" className="w-full">
+                  Admin
+                </Button>
+              </Link>
             </div>
           </nav>
         </div>

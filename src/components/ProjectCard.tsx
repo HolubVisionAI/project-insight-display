@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Github } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Project {
   id: number;
@@ -20,8 +21,22 @@ interface ProjectCardProps {
 }
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/project/${project.id}`);
+  };
+
+  const handleButtonClick = (e: React.MouseEvent, url: string) => {
+    e.stopPropagation(); // Prevent card click when clicking buttons
+    window.open(url, '_blank');
+  };
+
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-[1.03] bg-card border-border overflow-hidden">
+    <Card 
+      className="group hover:shadow-lg transition-all duration-300 hover:scale-[1.03] bg-card border-border overflow-hidden cursor-pointer"
+      onClick={handleCardClick}
+    >
       <div className="relative overflow-hidden">
         <img
           src={project.thumbnail}
@@ -33,7 +48,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
             size="sm"
             variant="secondary"
             className="opacity-90 hover:opacity-100"
-            onClick={() => window.open(project.demoUrl, '_blank')}
+            onClick={(e) => handleButtonClick(e, project.demoUrl)}
           >
             <ExternalLink size={16} className="mr-2" />
             Demo
@@ -42,7 +57,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
             size="sm"
             variant="secondary"
             className="opacity-90 hover:opacity-100"
-            onClick={() => window.open(project.githubUrl, '_blank')}
+            onClick={(e) => handleButtonClick(e, project.githubUrl)}
           >
             <Github size={16} className="mr-2" />
             Code
