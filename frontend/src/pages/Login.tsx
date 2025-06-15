@@ -23,7 +23,7 @@ const Login = () => {
       console.log("Login attempt:", { email, password });
       setIsLoading(false);
       // Redirect to admin dashboard on successful login
-      navigate("/admin");
+      // navigate("/admin");
     }, 1000);
   };
 
