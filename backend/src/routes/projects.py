@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from ..db import models, schemas
 from ..db.database import get_db
 from .. import auth
@@ -36,13 +36,39 @@ def get_project(project_id: int, db: Session = Depends(get_db)):
 def create_project(
         project: schemas.ProjectCreate,
         db: Session = Depends(get_db),
-        current_user: models.User = Depends(auth.get_current_active_admin)
+        current_user: models.User = Depends(auth.get_current_active_admin),
 ):
-    db_project = models.Project(**project.model_dump())
+    # 1) Dump to a JSON-compatible dict (Url → str, lists stay lists, etc.)
+    proj_data: Dict[str, Any] = project.model_dump(mode="json")
+    print(proj_data)
+
+    # 2) Create the SQLAlchemy model with only DB-friendly types
+    db_project = models.Project(
+        title=project.title,
+        short_desc=project.short_desc,
+        thumbnail=str(project.thumbnail),
+        demo_url=str(project.demo_url),
+        github_url=str(project.github_url),
+        tech_tags=project.tech_tags,
+    )
+    # db_project = models.Project(**filtered_data)
     db.add(db_project)
     db.commit()
     db.refresh(db_project)
-    return db_project
+    data = {
+        "id": db_project.id,
+        "title": db_project.title,
+        "short_desc": db_project.short_desc,
+        "tech_tags": db_project.tech_tags,
+        "thumbnail": db_project.thumbnail,
+        "images": db_project.images,
+        "demo_url": db_project.demo_url,
+        "github_url": db_project.github_url,
+        "created_at": db_project.created_at,
+        "updated_at": db_project.updated_at,
+    }
+    # Pydantic will treat this as a mapping and use your alias_generator
+    return data
 
 
 @router.put("/{project_id}", response_model=schemas.Project)

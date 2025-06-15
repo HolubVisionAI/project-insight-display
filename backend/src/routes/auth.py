@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
+from pydantic import EmailStr
 
 from .. import auth
 from ..db.database import get_db
@@ -11,20 +12,23 @@ router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 
 @router.post("/register", response_model=schemas.User)
-def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if db_user:
+def register_user(
+        name: str = Form(...),
+        email: EmailStr = Form(...),
+        password: str = Form(...),
+        db: Session = Depends(get_db)
+):
+    if db.query(models.User).filter(models.User.email == email).first():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
-
-    hashed_password = auth.get_password_hash(user.password)
-    db_user = models.User(email=user.email, password_hash=hashed_password)
-    db.add(db_user)
+    hashed = auth.get_password_hash(password)
+    u = models.User(name=name, email=email, password_hash=hashed)
+    db.add(u)
     db.commit()
-    db.refresh(db_user)
-    return db_user
+    db.refresh(u)
+    return u
 
 
 @router.post("/login", response_model=schemas.Token)

@@ -9,6 +9,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(150), nullable=False)
     email = Column(String(150), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     is_admin = Column(Boolean, default=False)
@@ -20,12 +21,11 @@ class Project(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(100), unique=True, nullable=False)
     short_desc = Column(String(200), nullable=False)
-    full_desc = Column(Text, nullable=False)
     tech_tags = Column(ARRAY(String), nullable=False)
     thumbnail = Column(String, nullable=False)
     images = Column(ARRAY(String))
     demo_url = Column(String)
-    repo_url = Column(String, nullable=False)
+    github_url = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

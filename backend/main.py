@@ -20,13 +20,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS
+# during dev you can allow *; in prod lock this down
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(","),
+    allow_origins=[
+        "http://localhost:8080",  # your Vite dev server
+        # add any other front-end origins you use
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # GET, POST, OPTIONS, etc.
+    allow_headers=["*"],  # Content-Type, Authorization, etc.
 )
 
 # Include routers
@@ -35,6 +38,7 @@ app.include_router(projects.router)
 app.include_router(analytics.router)
 app.include_router(chat.router)
 
+
 @app.get("/")
 async def root():
-    return {"message": "Welcome to Portfolio Showcase API"} 
+    return {"message": "Welcome to Portfolio Showcase API"}
