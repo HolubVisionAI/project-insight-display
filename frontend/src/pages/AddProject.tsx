@@ -12,7 +12,8 @@ export default function AddProjectPage() {
 
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
+    shortDesc: "",
+    detailDesc: "",
     demoUrl: "",
     githubUrl: "",
     thumbnail: "",
@@ -41,7 +42,7 @@ export default function AddProjectPage() {
   };
 
   const handleSubmit = () => {
-    if (!formData.title || !formData.description) {
+    if (!formData.title || !formData.shortDesc) {
       toast({
         title: "Missing fields",
         description: "Title and description are required.",
@@ -54,7 +55,8 @@ export default function AddProjectPage() {
     createProject(
       {
         title: formData.title,
-        shortDesc: formData.description,
+        shortDesc: formData.shortDesc,
+        detailDesc: formData.detailDesc || undefined,
         thumbnail: formData.thumbnail || undefined,
         demoUrl: formData.demoUrl || undefined,
         githubUrl: formData.githubUrl || undefined,

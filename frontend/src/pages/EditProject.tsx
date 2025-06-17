@@ -30,7 +30,8 @@ export default function EditProjectPage() {
   // --- form local state (seeded once project arrives) ---
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
+    shortDesc: "",
+    detailDesc: "",
     demoUrl: "",
     githubUrl: "",
     thumbnail: "",
@@ -44,7 +45,8 @@ export default function EditProjectPage() {
     if (project) {
       setFormData({
         title: project.title,
-        description: project.shortDesc,
+        shortDesc: project.shortDesc,
+        detailDesc: project.detailDesc ?? "",
         demoUrl: project.demoUrl ?? "",
         githubUrl: project.githubUrl ?? "",
         thumbnail: project.thumbnail ?? "",
@@ -72,7 +74,7 @@ export default function EditProjectPage() {
 
   // --- submit via the updateProject hook ---
   const handleSubmit = async () => {
-    if (!formData.title || !formData.description) {
+    if (!formData.title || !formData.shortDesc) {
       toast({
         title: "Missing fields",
         description: "Title and description are required.",
@@ -83,7 +85,8 @@ export default function EditProjectPage() {
 
     const payload: ProjectUpdate = {
       title: formData.title,
-      shortDesc: formData.description,
+      shortDesc: formData.shortDesc,
+      detailDesc: formData.detailDesc || undefined,
       demoUrl: formData.demoUrl || undefined,
       githubUrl: formData.githubUrl || undefined,
       thumbnail: formData.thumbnail || undefined,

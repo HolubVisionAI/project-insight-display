@@ -46,6 +46,7 @@ def create_project(
     db_project = models.Project(
         title=project.title,
         short_desc=project.short_desc,
+        detail_desc=project.detail_desc,
         thumbnail=str(project.thumbnail),
         demo_url=str(project.demo_url),
         github_url=str(project.github_url),
@@ -59,6 +60,7 @@ def create_project(
         "id": db_project.id,
         "title": db_project.title,
         "short_desc": db_project.short_desc,
+        "detail_desc": db_project.detail_desc,
         "tech_tags": db_project.tech_tags,
         "thumbnail": db_project.thumbnail,
         "images": db_project.images,
@@ -84,8 +86,10 @@ def update_project(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found"
         )
+    # dump as JSON‐compatible primitives (so Url → str)
+    updates = project.model_dump(exclude_none=True, mode="json")
 
-    for key, value in project.model_dump(exclude_unset=True).items():
+    for key, value in updates.items():
         setattr(db_project, key, value)
 
     db.commit()

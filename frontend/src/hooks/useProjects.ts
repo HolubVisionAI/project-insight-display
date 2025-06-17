@@ -1,7 +1,7 @@
 import {useState, useEffect, useCallback} from "react";
 import type {AdminProject} from "@/types/admin";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { ProjectUpdate } from "@/types/projects";
+import type { Project } from "@/types/projects";
 import {
   listProjectsApi,
   deleteProjectApi,
@@ -9,7 +9,7 @@ import {
 } from "@/api/projects";
 
 export function useProjects() {
-    const [projects, setProjects] = useState<AdminProject[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 

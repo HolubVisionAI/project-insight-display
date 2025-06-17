@@ -1,5 +1,5 @@
 // src/api/projects.ts
-import type {ProjectCreate, ProjectUpdate, Project, AdminProject} from "@/types/projects";
+import type {ProjectCreate, ProjectUpdate, Project} from "@/types/projects";
 
 
 const BASE = "/api/v1/projects";
@@ -60,7 +60,7 @@ export async function createProjectApi(
 
 
 /** GET /api/v1/projects */
-export async function listProjectsApi(): Promise<AdminProject[]> {
+export async function listProjectsApi(): Promise<Project[]> {
     const token = localStorage.getItem("access_token");
     const res = await fetch(`${BASE}/`, {
         headers: token
@@ -85,10 +85,14 @@ export async function listProjectsApi(): Promise<AdminProject[]> {
     return payload.map((p: any) => ({
         id: p.id,
         title: p.title,
-        status: p.status,       // ← make sure your backend returns these
+        shortDesc: p.shortDesc,
+        detailDesc: p.detailDesc,
+        thumbnail: p.thumbnail,
+        status: p.status,
         views: p.viewCount,
         comments: p.comments,
         createdAt: p.createdAt,
+        techTags:p.techTags
     }));
 }
 

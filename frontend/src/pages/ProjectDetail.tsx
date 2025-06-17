@@ -1,51 +1,57 @@
-
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import { useProject } from "@/hooks/useProject";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ExternalLink, Github, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ExternalLink,
+  Github,
+  ArrowLeft,
+  Eye,
+  MessageCircle,
+} from "lucide-react";
 import CommentSection from "@/components/CommentSection";
 
-// Mock project data - in a real app this would come from an API
-const mockProjects = [
-  {
-    id: 1,
-    title: "E-Commerce Platform",
-    description: "Full-stack e-commerce solution built with React, Node.js, and PostgreSQL. Features include user authentication, product management, shopping cart, payment integration, and admin dashboard.",
-    longDescription: "This comprehensive e-commerce platform represents a full-stack solution designed to handle modern online retail needs. Built with cutting-edge technologies including React for the frontend, Node.js for the backend, and PostgreSQL for robust data management. The platform features a complete user authentication system, comprehensive product management capabilities, intuitive shopping cart functionality, secure payment integration, and a powerful admin dashboard for business management.",
-    tags: ["React", "Node.js", "PostgreSQL", "Stripe", "JWT"],
-    thumbnail: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1556745757-8d76bdb6984b?auto=format&fit=crop&w=800&q=80"
-    ],
-    demoUrl: "https://demo-ecommerce.example.com",
-    githubUrl: "https://github.com/example/ecommerce-platform",
-    createdAt: "2024-01-15",
-    technologies: ["React 18", "Node.js", "Express", "PostgreSQL", "Stripe API", "JWT Authentication", "Tailwind CSS"],
-    features: [
-      "User Registration & Authentication",
-      "Product Catalog with Search & Filters",
-      "Shopping Cart & Checkout Process",
-      "Payment Integration with Stripe",
-      "Order Management System",
-      "Admin Dashboard",
-      "Responsive Design"
-    ]
+export default function ProjectDetail() {
+  // 1) grab the :id param and coerce to number
+  const { id } = useParams<{ id: string }>();
+  const projectId = Number(id);
+
+  // 2) fetch via your hook
+  const {
+    project,
+    isLoading: isLoadingProject,
+    error: loadError,
+  } = useProject(projectId);
+
+  // 3) UI for loading / error
+  if (isLoadingProject) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading project…</p>
+      </div>
+    );
   }
-];
 
-const ProjectDetail = () => {
-  const { id } = useParams();
-  const project = mockProjects.find(p => p.id === Number(id));
+  if (loadError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-600">Error loading project: {loadError.message}</p>
+      </div>
+    );
+  }
 
+  // 4) not found
   if (!project) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Project Not Found</h1>
+          <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>
           <Link to="/">
             <Button>
               <ArrowLeft size={16} className="mr-2" />
@@ -57,6 +63,7 @@ const ProjectDetail = () => {
     );
   }
 
+  // 5) main render
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -71,104 +78,69 @@ const ProjectDetail = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Project Images */}
-          <div>
-            <div className="mb-4">
-              <img
-                src={project.thumbnail}
-                alt={project.title}
-                className="w-full h-96 object-cover rounded-lg shadow-lg"
-              />
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {project.images.map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`${project.title} ${index + 1}`}
-                  className="w-full h-24 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity"
-                />
-              ))}
-            </div>
+      <div className="container mx-auto px-4 py-8 space-y-8">
+        {/* Top info */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-4xl font-bold">{project.title}</h1>
+          <div className="flex space-x-4 text-sm text-muted-foreground">
+            <span className="flex items-center">
+              <Eye size={16} className="mr-1" />
+              {project.viewCount}
+            </span>
+            <span className="flex items-center">
+              <MessageCircle size={16} className="mr-1" />
+              {project.comments}
+            </span>
           </div>
+        </div>
 
-          {/* Project Info */}
-          <div>
-            <h1 className="text-4xl font-bold text-foreground mb-4">{project.title}</h1>
-            <p className="text-lg text-muted-foreground mb-6">{project.longDescription}</p>
+        {/* Thumbnail & Short */}
+        {project.thumbnail && (
+          <img
+            src={project.thumbnail}
+            alt={project.title}
+            className="w-full h-96 object-cover rounded-lg shadow-lg"
+          />
+        )}
+        <p className="text-lg text-muted-foreground">{project.shortDesc}</p>
 
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {project.tags.map((tag) => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+        {/* Detail */}
+        <p className="prose max-w-none">{project.detailDesc}</p>
 
-            {/* Action Buttons */}
-            <div className="flex gap-4 mb-8">
-              <Button 
-                size="lg"
-                onClick={() => window.open(project.demoUrl, '_blank')}
-              >
-                <ExternalLink size={16} className="mr-2" />
-                Live Demo
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                onClick={() => window.open(project.githubUrl, '_blank')}
-              >
-                <Github size={16} className="mr-2" />
-                View Code
-              </Button>
-            </div>
-
-            {/* Technologies */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle>Technologies Used</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {project.technologies.map((tech) => (
-                    <Badge key={tech} variant="outline">
-                      {tech}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Features */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Key Features</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {project.features.map((feature) => (
-                    <li key={feature} className="flex items-center">
-                      <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+        {/* Tags */}
+        {project.techTags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {project.techTags.map((tag) => (
+              <Badge key={tag} variant="secondary">
+                {tag}
+              </Badge>
+            ))}
           </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-4">
+          {project.demoUrl && (
+            <Button size="lg" onClick={() => window.open(project.demoUrl, "_blank")}>
+              <ExternalLink size={16} className="mr-2" />
+              Live Demo
+            </Button>
+          )}
+          {project.githubUrl && (
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => window.open(project.githubUrl, "_blank")}
+            >
+              <Github size={16} className="mr-2" />
+              View Code
+            </Button>
+          )}
         </div>
 
         {/* Comments Section */}
-        <div className="mt-12">
-          <CommentSection projectId={project.id} />
-        </div>
+        <CommentSection projectId={project.id} />
       </div>
     </div>
   );
-};
-
-export default ProjectDetail;
+}

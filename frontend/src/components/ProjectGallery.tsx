@@ -1,78 +1,58 @@
-
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useProjects } from "@/hooks/useProjects";
 import ProjectCard from "./ProjectCard";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 
 const ProjectGallery = () => {
+  // 1️⃣ Fetch all projects (and removal fn) from your hook
+  const {
+    projects,
+    loading,
+    error,
+    removeProject,     // call this with an ID to delete
+  } = useProjects();
+
+  // 2️⃣ Local UI state for the tag filter
   const [activeFilter, setActiveFilter] = useState("All");
 
-  const projects = [
-    {
-      id: 1,
-      title: "E-Commerce Platform",
-      description: "A full-stack e-commerce solution with React, Node.js, and PostgreSQL",
-      tags: ["React", "Node.js", "PostgreSQL"],
-      thumbnail: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=250&fit=crop",
-      demoUrl: "#",
-      githubUrl: "#",
-      createdAt: "2025-06-01"
-    },
-    {
-      id: 2,
-      title: "AI Chatbot Interface",
-      description: "Intelligent chatbot with natural language processing capabilities",
-      tags: ["React", "Python", "Flask", "AI"],
-      thumbnail: "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=400&h=250&fit=crop",
-      demoUrl: "#",
-      githubUrl: "#",
-      createdAt: "2025-05-15"
-    },
-    {
-      id: 3,
-      title: "Project Manager Dashboard",
-      description: "Comprehensive project management tool with real-time collaboration",
-      tags: ["React", "FastAPI", "MongoDB"],
-      thumbnail: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&h=250&fit=crop",
-      demoUrl: "#",
-      githubUrl: "#",
-      createdAt: "2025-04-20"
-    },
-    {
-      id: 4,
-      title: "Weather Analytics App",
-      description: "Beautiful weather dashboard with data visualization",
-      tags: ["React", "Python", "D3.js"],
-      thumbnail: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=400&h=250&fit=crop",
-      demoUrl: "#",
-      githubUrl: "#",
-      createdAt: "2025-03-10"
-    },
-    {
-      id: 5,
-      title: "Social Media Analytics",
-      description: "Comprehensive social media monitoring and analytics platform",
-      tags: ["React", "Flask", "Redis"],
-      thumbnail: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=250&fit=crop",
-      demoUrl: "#",
-      githubUrl: "#",
-      createdAt: "2025-02-28"
-    },
-    {
-      id: 6,
-      title: "Content Management System",
-      description: "Modern CMS with drag-and-drop page builder",
-      tags: ["React", "FastAPI", "PostgreSQL"],
-      thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop",
-      demoUrl: "#",
-      githubUrl: "#",
-      createdAt: "2025-01-15"
+  // 1) Build tag list safely
+  const allTags = useMemo(() => {
+    if (!projects || projects.length === 0) {
+      return ["All"];
     }
-  ];
+    const tags = new Set<string>();
+    projects.forEach((p) => {
+      // guard p.techTags too if needed
+      p.techTags?.forEach((t) => tags.add(t));
+    });
+    return ["All", ...Array.from(tags)];
+  }, [projects]);
 
-  const allTags = ["All", ...Array.from(new Set(projects.flatMap(project => project.tags)))];
+  // 2) Filtered list safely
+  const filtered = useMemo(() => {
+    if (!projects) return [];
+    if (activeFilter === "All") return projects;
+    return projects.filter((p) => p.techTags.includes(activeFilter));
+  }, [projects, activeFilter]);
 
-  const filteredProjects = activeFilter === "All" 
-    ? projects 
-    : projects.filter(project => project.tags.includes(activeFilter));
+
+  // 5️⃣ Loading & error states
+  if (loading) {
+    return (
+      <div className="min-h-[200px] flex items-center justify-center">
+        <p>Loading projects…</p>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="min-h-[200px] flex items-center justify-center text-red-600">
+        <AlertTriangle className="mr-2" />
+        <span>Error: {error.message}</span>
+      </div>
+    );
+  }
 
   return (
     <section id="projects" className="py-20 bg-background">
@@ -83,7 +63,7 @@ const ProjectGallery = () => {
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             A showcase of my recent work, featuring modern web applications
-            built with cutting-edge technologies
+            built with cutting-edge technologies.
           </p>
         </div>
 
@@ -106,8 +86,19 @@ const ProjectGallery = () => {
 
         {/* Projects Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+          {filtered.map((project) => (
+            <div key={project.id} className="relative">
+              {/* Pass removeProject down, or handle here */}
+              <button
+                onClick={() => removeProject(project.id)}
+                className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                title="Remove project"
+              >
+                ✕
+              </button>
+
+              <ProjectCard project={project} />
+            </div>
           ))}
         </div>
       </div>

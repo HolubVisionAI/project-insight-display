@@ -31,6 +31,7 @@ def to_camel(s: str) -> str:
 class ProjectBase(BaseModel):
     title: str
     short_desc: str
+    detail_desc: Optional[str] = None  # ← allow None
     tech_tags: List[str] = []
     thumbnail: Optional[HttpUrl] = None
     images: Optional[List[HttpUrl]] = None
@@ -47,14 +48,8 @@ class ProjectCreate(ProjectBase):
     pass
 
 
-class ProjectUpdate(BaseModel):
-    title: Optional[str] = None
-    short_desc: Optional[str] = None
-    tech_tags: Optional[List[str]] = None
-    thumbnail: Optional[HttpUrl] = None
-    images: Optional[List[HttpUrl]] = None
-    demo_url: Optional[HttpUrl] = None
-    github_url: Optional[HttpUrl] = None
+class ProjectUpdate(ProjectBase):
+    pass
 
 
 class Project(ProjectBase):
@@ -102,3 +97,20 @@ class PageView(PageViewCreate):
 
     class Config:
         from_attributes = True
+
+
+class CommentBase(BaseModel):
+    author_name: str
+    content: str
+
+
+class CommentCreate(CommentBase):
+    pass
+
+
+class Comment(CommentBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True

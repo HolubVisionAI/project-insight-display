@@ -21,6 +21,7 @@ class Project(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(100), unique=True, nullable=False)
     short_desc = Column(String(200), nullable=False)
+    detail_desc = Column(String(200), nullable=True)
     tech_tags = Column(ARRAY(String), nullable=False)
     thumbnail = Column(String, nullable=False)
     view_count = Column(Integer, nullable=True)

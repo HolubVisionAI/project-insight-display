@@ -11,7 +11,8 @@ import { Link } from "react-router-dom";
 interface ProjectFormProps {
   formData: {
     title: string;
-    description: string;
+    shortDesc: string;
+    detailDesc: string;
     thumbnail: string;
     demoUrl: string;
     githubUrl: string;
@@ -71,17 +72,29 @@ export function ProjectForm({
             />
           </div>
 
+          {/* Overview */}
+          <div className="space-y-2">
+            <Label htmlFor="shortDesc">Overview *</Label>
+            <Textarea
+              id="shortDesc"
+              name="shortDesc"
+              value={formData.shortDesc}
+              onChange={onInputChange}
+              placeholder="Overview about your project"
+              rows={4}
+              required
+            />
+          </div>
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description *</Label>
+            <Label htmlFor="detailDesc">Description</Label>
             <Textarea
-              id="description"
-              name="description"
-              value={formData.description}
+              id="detailDesc"
+              name="detailDesc"
+              value={formData.detailDesc}
               onChange={onInputChange}
               placeholder="Describe your project"
               rows={4}
-              required
             />
           </div>
 
