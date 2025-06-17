@@ -23,6 +23,7 @@ class Project(Base):
     short_desc = Column(String(200), nullable=False)
     tech_tags = Column(ARRAY(String), nullable=False)
     thumbnail = Column(String, nullable=False)
+    view_count = Column(Integer, nullable=True)
     images = Column(ARRAY(String))
     demo_url = Column(String)
     github_url = Column(String, nullable=False)

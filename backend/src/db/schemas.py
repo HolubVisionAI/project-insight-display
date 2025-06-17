@@ -61,6 +61,7 @@ class Project(ProjectBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    view_count: int
     model_config = ConfigDict(
         **ProjectBase.model_config,
     )
