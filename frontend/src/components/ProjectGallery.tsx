@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { useProjects } from "@/hooks/useProjects";
 import ProjectCard from "./ProjectCard";
-import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 
 const ProjectGallery = () => {

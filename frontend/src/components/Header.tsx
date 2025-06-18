@@ -1,11 +1,12 @@
-
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth.tsx";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   const navItems = [
     { name: "Home", href: "#home" },
@@ -19,7 +20,7 @@ const Header = () => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="font-bold text-xl text-primary">
-          Jane Doe
+          Ihor Holub
         </Link>
 
         {/* Desktop Navigation */}
@@ -28,7 +29,11 @@ const Header = () => {
             <a
               key={item.name}
               href={item.href}
-              className="text-foreground hover:text-primary transition-colors duration-200 relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left"
+              className="text-foreground hover:text-primary transition-colors duration-200 relative
+                         after:content-[''] after:absolute after:w-full after:scale-x-0
+                         after:h-0.5 after:bottom-0 after:left-0 after:bg-primary
+                         after:origin-bottom-right after:transition-transform after:duration-300
+                         hover:after:scale-x-100 hover:after:origin-bottom-left"
             >
               {item.name}
             </a>
@@ -37,16 +42,24 @@ const Header = () => {
 
         {/* Auth Buttons */}
         <div className="hidden md:flex space-x-2">
-          <Link to="/login">
-            <Button variant="ghost" size="sm">
-              Login
+          {!user ? (
+            <Link to="/login">
+              <Button variant="ghost" size="sm">
+                Login
+              </Button>
+            </Link>
+          ) : (
+            <Button variant="ghost" size="sm" onClick={logout}>
+              Logout
             </Button>
-          </Link>
-          <Link to="/admin">
-            <Button size="sm">
-              Admin
-            </Button>
-          </Link>
+          )}
+
+          {/* Only show Admin if the user is logged in AND isAdmin */}
+          {user?.is_admin && (
+            <Link to="/admin">
+              <Button size="sm">Admin</Button>
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -74,17 +87,35 @@ const Header = () => {
                 {item.name}
               </a>
             ))}
+
             <div className="pt-4 border-t border-border space-y-2">
-              <Link to="/login">
-                <Button variant="ghost" size="sm" className="w-full">
-                  Login
+              {!user ? (
+                <Link to="/login">
+                  <Button variant="ghost" size="sm" className="w-full">
+                    Login
+                  </Button>
+                </Link>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    logout();
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  Logout
                 </Button>
-              </Link>
-              <Link to="/admin">
-                <Button size="sm" className="w-full">
-                  Admin
-                </Button>
-              </Link>
+              )}
+
+              {user?.is_admin && (
+                <Link to="/admin">
+                  <Button size="sm" className="w-full">
+                    Admin
+                  </Button>
+                </Link>
+              )}
             </div>
           </nav>
         </div>

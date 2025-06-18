@@ -1,3 +1,4 @@
+// src/hooks/useComments.ts
 import { useState, useEffect, useCallback } from "react";
 import type { Comment } from "@/types/comments"
 import { listCommentsApi, createCommentApi } from "@/api/comments";

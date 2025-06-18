@@ -5,27 +5,46 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Textarea} from "@/components/ui/textarea";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
-import {MessageSquare, User} from "lucide-react";
+import {AlertTriangle, MessageSquare, User} from "lucide-react";
 import {useComments} from "@/hooks/useComments";
 import type {Comment} from "@/types/comments"
-
+import {useAuth} from "@/hooks/useAuth";
+import {Navigate, useLocation} from "react-router-dom";
+import {useToast} from "@/hooks/use-toast";
 
 interface CommentSectionProps {
     projectId: number;
 }
 
 export default function CommentSection({projectId}: CommentSectionProps) {
+
     const {comments, loading, error, addComment} = useComments(projectId);
     const [newContent, setNewContent] = useState("");
     const [authorName, setAuthorName] = useState("");
-    console.log(comments);
+    const {user} = useAuth();
+    const {toast} = useToast();
+    // If not logged in, redirect to login,
+    // preserving where we came from in state so you can send them back:
+    console.log(user);
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
         if (!authorName.trim() || !newContent.trim()) return;
         try {
-            await addComment(authorName, newContent);
-            setAuthorName("");
-            setNewContent("");
+            if (user) {
+                await addComment(authorName, newContent);
+                setAuthorName("");
+                setNewContent("");
+            } else {
+                toast({
+                    title: "Alert",
+                    description: "After login, you can write comment",
+                    variant: "destructive",
+                    duration:2000
+                });
+                return;
+            }
+
         } catch {
             // (error is already set in the hook)
         }

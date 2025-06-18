@@ -177,7 +177,7 @@ export function ProjectForm({
               className="flex-1"
               disabled={isLoading}
             >
-              {isLoading ? "Creating…" : "Create Project"}
+              {isLoading ? "Creating…" : "Save Project"}
             </Button>
             <Link to="/admin" className="flex-1">
               <Button type="button" variant="outline" className="w-full">

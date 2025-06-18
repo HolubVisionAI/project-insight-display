@@ -1,3 +1,4 @@
+// src/api/comments
 import type {Comment} from "@/types/comments";
 
 const BASE = "/api/v1/projects";
