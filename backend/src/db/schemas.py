@@ -78,7 +78,7 @@ class Project(ProjectBase):
     created_at: datetime
     updated_at: datetime
     view_count: int
-    comments: List[Comment] = Field(default_factory=list)
+    comments: int
     model_config = ConfigDict(
         **ProjectBase.model_config,
     )

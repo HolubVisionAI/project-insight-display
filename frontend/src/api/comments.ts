@@ -37,5 +37,16 @@ export async function createCommentApi(
     if (!res.ok) {
         throw new Error(`Error posting comment: ${res.statusText}`);
     }
-    return res.json();
+     const data = (await res.json()) as {
+        id: number;
+        author_name: string;
+        content: string;
+        created_at: string;
+    };
+    return {
+        id: data.id,
+        authorName: data.author_name,
+        content: data.content,
+        createdAt: data.created_at,
+    };
 }

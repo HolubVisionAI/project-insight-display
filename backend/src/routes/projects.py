@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session, selectinload
 from typing import List, Optional, Dict, Any
 from ..db import models, schemas
@@ -13,22 +14,83 @@ def list_projects(
         tag: Optional[str] = None,
         limit: int = Query(10, ge=1, le=100),
         offset: int = Query(0, ge=0),
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
 ):
-    query = db.query(models.Project)
+    # 1) Build the base Project query
+    proj_q = db.query(models.Project)
     if tag:
-        query = query.filter(models.Project.tech_tags.contains([tag]))
-    return query.offset(offset).limit(limit).all()
+        proj_q = proj_q.filter(models.Project.tech_tags.contains([tag]))
+
+    # 2) Build a subquery that counts comments per project_id
+    comment_counts = (
+        db.query(
+            models.Comment.project_id.label("pid"),
+            func.count(models.Comment.id).label("cnt")
+        )
+        .group_by(models.Comment.project_id)
+        .subquery()
+    )
+
+    # 3) Join Projects with that count (outer so 0 shows up when no comments)
+    rows = (
+        db.query(
+            models.Project,
+            comment_counts.c.cnt
+        )
+        .outerjoin(comment_counts, models.Project.id == comment_counts.c.pid)
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+
+    # 4) Build a list of dicts, injecting `comments = cnt or 0`
+    result: List[dict] = []
+    for project, cnt in rows:
+        # take all the ORM fields
+        proj_data = {
+            "id": project.id,
+            "title": project.title,
+            "short_desc": project.short_desc,
+            "detail_desc": project.detail_desc,
+            "thumbnail": project.thumbnail,
+            "demo_url": project.demo_url,
+            "github_url": project.github_url,
+            "tech_tags": project.tech_tags,
+            "created_at": project.created_at,
+            "updated_at": project.updated_at,
+            "view_count": project.view_count,
+            # **here** we override / supply the comment count:
+            "comments": int(cnt or 0),
+        }
+        result.append(proj_data)
+
+    return result
 
 
 @router.get("/{project_id}", response_model=schemas.Project)
 def get_project(project_id: int, db: Session = Depends(get_db)):
-    project = db.query(models.Project).filter(models.Project.id == project_id).first()
+    project = (
+        db.query(models.Project)
+        .filter(models.Project.id == project_id)
+        .first()
+    )
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found"
         )
+    cnt = (
+              db.query(func.count(models.Comment.id))
+              .filter(models.Comment.project_id == project_id)
+              .scalar()
+          ) or 0
+    project.comments = cnt
+    # ─── increment view count ────────────────────────────────────
+    project.view_count = (project.view_count or 0) + 1
+    db.commit()
+    db.refresh(project)
+    # ──────────────────────────────────────────────────────────────
+
     return project
 
 

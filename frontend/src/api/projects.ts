@@ -1,6 +1,6 @@
 // src/api/projects.ts
 import type {ProjectCreate, ProjectUpdate, Project} from "@/types/projects";
-
+import {apiFetch} from "@/api/apiClient.ts"
 
 const BASE = "/api/v1/projects";
 
@@ -62,7 +62,7 @@ export async function createProjectApi(
 /** GET /api/v1/projects */
 export async function listProjectsApi(): Promise<Project[]> {
     const token = localStorage.getItem("access_token");
-    const res = await fetch(`${BASE}/`, {
+    const res = await apiFetch(`${BASE}/`, {
         headers: token
             ? {Authorization: `Bearer ${token}`}
             : undefined,
@@ -99,7 +99,7 @@ export async function listProjectsApi(): Promise<Project[]> {
 /** DELETE /api/v1/projects/:id */
 export async function deleteProjectApi(id: number): Promise<void> {
     const token = localStorage.getItem("access_token");
-    const res = await fetch(`${BASE}/${id}`, {
+    const res = await apiFetch(`${BASE}/${id}`, {
         method: "DELETE",
         headers: token
             ? {Authorization: `Bearer ${token}`}
@@ -125,7 +125,7 @@ export async function updateProjectApi(
     id: number,
     project: ProjectUpdate
 ): Promise<Project> {
-    const resp = await fetch(`${BASE}/${id}`, {
+    const resp = await apiFetch(`${BASE}/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",

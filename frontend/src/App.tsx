@@ -20,55 +20,55 @@ const queryClient = new QueryClient();
 
 const App = () => (
     <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-            <AuthProvider>
-                <Toaster/>
-                <Sonner/>
-                <BrowserRouter>
-                    <Routes>
-                        <Route path="/" element={<Index/>}/>
-                        <Route path="/project/:id" element={<ProjectDetail/>}/>
-                        <Route
-                            path="/admin"
-                            element={
-                                <ProtectedRoute>
-                                    <AdminDashboard/>
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/admin/add-project"
-                            element={
-                                <ProtectedRoute>
-                                    <AddProject/>
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/admin/edit-project/:id"
-                            element={
-                                <ProtectedRoute>
-                                    <EditProject/>
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/admin/users"
-                            element={
-                                <ProtectedRoute>
-                                    <AdminUsers/>
-                                </ProtectedRoute>
-                            }
-                        />
+        <BrowserRouter>
+            <TooltipProvider>
+                <AuthProvider>
+                    <Toaster/>
+                    <Sonner/>
+                        <Routes>
+                            <Route path="/" element={<Index/>}/>
+                            <Route path="/project/:id" element={<ProjectDetail/>}/>
+                            <Route
+                                path="/admin"
+                                element={
+                                    <ProtectedRoute>
+                                        <AdminDashboard/>
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/admin/add-project"
+                                element={
+                                    <ProtectedRoute>
+                                        <AddProject/>
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/admin/edit-project/:id"
+                                element={
+                                    <ProtectedRoute>
+                                        <EditProject/>
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/admin/users"
+                                element={
+                                    <ProtectedRoute>
+                                        <AdminUsers/>
+                                    </ProtectedRoute>
+                                }
+                            />
 
-                        <Route path="/login" element={<Login/>}/>
-                        <Route path="/register" element={<Register/>}/>
-                        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                        <Route path="*" element={<NotFound/>}/>
-                    </Routes>
-                </BrowserRouter>
-            </AuthProvider>
-        </TooltipProvider>
+                            <Route path="/login" element={<Login/>}/>
+                            <Route path="/register" element={<Register/>}/>
+                            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                            <Route path="*" element={<NotFound/>}/>
+                        </Routes>
+                </AuthProvider>
+            </TooltipProvider>
+        </BrowserRouter>
     </QueryClientProvider>
 );
 

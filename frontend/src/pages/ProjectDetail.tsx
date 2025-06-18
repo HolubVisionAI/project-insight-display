@@ -1,3 +1,4 @@
+//src/pages/ProjectDetail.tsx
 import {useParams, Link} from "react-router-dom";
 import {useProject} from "@/hooks/useProject";
 import {Button} from "@/components/ui/button";

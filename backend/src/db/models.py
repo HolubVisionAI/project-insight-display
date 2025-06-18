@@ -28,7 +28,7 @@ class Project(Base):
     thumbnail = Column(String, nullable=False)
     view_count = Column(Integer, nullable=True)
     images = Column(ARRAY(String))
-    comments = Column(ARRAY(String))
+    comments = Column(Integer, nullable=True)
     demo_url = Column(String)
     github_url = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

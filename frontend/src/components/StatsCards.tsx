@@ -37,7 +37,7 @@ export function StatsCards({ projects }: StatsCardsProps) {
           <Eye size={16} />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">toLocaleString</div>
+          <div className="text-2xl font-bold">{views}</div>
           <p className="text-xs">Across all projects</p>
         </CardContent>
       </Card>

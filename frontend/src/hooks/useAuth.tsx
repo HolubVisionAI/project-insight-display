@@ -1,5 +1,12 @@
 // src/hooks/useAuth.ts
-import {createContext, useContext, useState, useEffect} from "react";
+import {
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+    ReactNode,
+} from "react";
+import {useNavigate} from "react-router-dom";
 
 interface AuthContextValue {
     user: { name: string; is_admin: boolean } | null;
@@ -10,12 +17,13 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export const AuthProvider = ({children}: { children: React.ReactNode }) => {
+export const AuthProvider = ({children}: { children: ReactNode }) => {
     const [user, setUser] = useState<AuthContextValue["user"]>(null);
     const [initialized, setInitialized] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        // e.g. read from localStorage or call an API
+        // hydrate from localStorage on startup
         const saved = localStorage.getItem("user");
         if (saved) setUser(JSON.parse(saved));
         setInitialized(true);
@@ -25,10 +33,23 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
         setUser(u);
         localStorage.setItem("user", JSON.stringify(u));
     };
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem("user");
+        localStorage.removeItem("access_token");
+        // send them to the login page
+        navigate("/login", {replace: true});
     };
+
+    // if anyone ever dispatches window.logoutEvent, run our logout()
+    useEffect(() => {
+        const onLogout = () => logout();
+        window.addEventListener("logoutEvent", onLogout);
+        return () => {
+            window.removeEventListener("logoutEvent", onLogout);
+        };
+    }, []);
 
     return (
         <AuthContext.Provider value={{user, login, logout, initialized}}>

@@ -38,12 +38,12 @@ export default function AdminDashboard() {
             <Link to="/">
               <Button variant="outline">View Site</Button>
             </Link>
-            <Link to="/admin/users">
-              <Button variant="outline">
-                <Users size={16} className="mr-2" />
-                Users
-              </Button>
-            </Link>
+            {/*<Link to="/admin/users">*/}
+            {/*  <Button variant="outline">*/}
+            {/*    <Users size={16} className="mr-2" />*/}
+            {/*    Users*/}
+            {/*  </Button>*/}
+            {/*</Link>*/}
             <Link to="/admin/add-project">
               <Button>
                 <Plus size={16} className="mr-2" />
