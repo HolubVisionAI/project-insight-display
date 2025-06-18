@@ -5,6 +5,7 @@ import uuid
 
 Base = declarative_base()
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -14,6 +15,7 @@ class User(Base):
     password_hash = Column(String(255), nullable=False)
     is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
 
 class Project(Base):
     __tablename__ = "projects"
@@ -26,10 +28,22 @@ class Project(Base):
     thumbnail = Column(String, nullable=False)
     view_count = Column(Integer, nullable=True)
     images = Column(ARRAY(String))
+    comments = Column(ARRAY(String))
     demo_url = Column(String)
     github_url = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    author_name = Column(String(200), nullable=False)
+    project_id = Column(Integer, nullable=False)
+    content = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
 
 class PageView(Base):
     __tablename__ = "page_views"
@@ -40,6 +54,7 @@ class PageView(Base):
     user_agent = Column(String)
     ip_address = Column(String)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
+
 
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
@@ -52,4 +67,4 @@ class ChatMessage(Base):
 
     __table_args__ = (
         CheckConstraint("sender IN ('user', 'bot')", name="valid_sender"),
-    ) 
+    )

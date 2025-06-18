@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from typing import List, Optional, Dict, Any
 from ..db import models, schemas
 from ..db.database import get_db
@@ -103,7 +103,10 @@ def delete_project(
         db: Session = Depends(get_db),
         current_user: models.User = Depends(auth.get_current_active_admin)
 ):
-    db_project = db.query(models.Project).filter(models.Project.id == project_id).first()
+    db_project = (db.query(models.Project)
+                  .options(selectinload(models.Project.comments))
+                  .filter(models.Project.id == project_id)
+                  .first())
     if not db_project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -113,3 +116,40 @@ def delete_project(
     db.delete(db_project)
     db.commit()
     return None
+
+
+@router.post(
+    "/{project_id}/comments",
+    response_model=schemas.Comment,
+    status_code=status.HTTP_201_CREATED,
+)
+def add_comment(
+        project_id: int,
+        comment_in: schemas.CommentCreate,
+        db: Session = Depends(get_db),
+):
+    proj = db.query(models.Project).filter_by(id=project_id).first()
+    if not proj:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # exclude project_id so we don’t duplicate it
+    data = comment_in.model_dump(exclude={"project_id"})
+    comment = models.Comment(**data, project_id=project_id)
+
+    db.add(comment)
+    db.commit()
+    db.refresh(comment)
+    return comment
+
+
+@router.get("/{project_id}/comments", response_model=List[schemas.Comment])
+def list_comments(project_id: int, db: Session = Depends(get_db)):
+    comments = (
+        db.query(models.Comment)
+        .filter_by(project_id=project_id)
+        .order_by(models.Comment.created_at.desc())
+        .all()
+    )
+    if not comments:
+        return []
+    return comments

@@ -1,11 +1,8 @@
 import {useState, useEffect, useCallback} from "react";
-import type {AdminProject} from "@/types/admin";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Project } from "@/types/projects";
+import type {Project} from "@/types/projects";
 import {
-  listProjectsApi,
-  deleteProjectApi,
-  updateProjectApi,
+    listProjectsApi,
+    deleteProjectApi,
 } from "@/api/projects";
 
 export function useProjects() {

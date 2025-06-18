@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, HttpUrl, ConfigDict
+from pydantic import BaseModel, EmailStr, HttpUrl, ConfigDict, field_validator, Field
 from typing import List, Optional
 from datetime import datetime
 
@@ -21,8 +21,26 @@ class User(UserBase):
         from_attributes = True
 
 
-# Project schemas
+# comment schemas
+class CommentBase(BaseModel):
+    author_name: str
+    content: str
 
+
+class CommentCreate(CommentBase):
+    project_id: int | None = None
+    pass
+
+
+class Comment(CommentBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# Project schemas
 def to_camel(s: str) -> str:
     parts = s.split("_")
     return parts[0] + "".join(w.capitalize() for w in parts[1:])
@@ -57,9 +75,15 @@ class Project(ProjectBase):
     created_at: datetime
     updated_at: datetime
     view_count: int
+    comments: List[Comment] = Field(default_factory=list)
     model_config = ConfigDict(
         **ProjectBase.model_config,
     )
+
+    @field_validator("comments", mode="before")
+    def ensure_comments_list(cls, v):
+        # if the ORM attr is None, turn it into []
+        return [] if v is None else v
 
 
 # Auth schemas
@@ -97,20 +121,3 @@ class PageView(PageViewCreate):
 
     class Config:
         from_attributes = True
-
-
-class CommentBase(BaseModel):
-    author_name: str
-    content: str
-
-
-class CommentCreate(CommentBase):
-    pass
-
-
-class Comment(CommentBase):
-    id: int
-    created_at: datetime
-
-    class Config:
-        orm_mode = True

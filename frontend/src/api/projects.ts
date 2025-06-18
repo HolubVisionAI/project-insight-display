@@ -92,7 +92,7 @@ export async function listProjectsApi(): Promise<Project[]> {
         views: p.viewCount,
         comments: p.comments,
         createdAt: p.createdAt,
-        techTags:p.techTags
+        techTags: p.techTags
     }));
 }
 
@@ -135,6 +135,7 @@ export async function updateProjectApi(
     });
     return handleResponse<Project>(resp);
 }
+
 /** GET /api/v1/projects/:id */
 export async function getProjectApi(id: number): Promise<Project> {
     const resp = await fetch(`${BASE}/${id}`, {
