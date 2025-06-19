@@ -2,34 +2,37 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
-from .db.database import Base
-from auth import get_password_hash
+from .database import Base
+from ..auth import get_password_hash
 
 load_dotenv()
+
 
 def init_db():
     # Get database URL from environment variable
     DATABASE_URL = os.getenv("DATABASE_URL")
-    
+    if not DATABASE_URL:
+        DATABASE_URL = os.environ.get('DATABASE_URL')
+
     # Handle PostgreSQL URL format from Render
     if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-    
+
     # Create engine
     engine = create_engine(DATABASE_URL)
-    
+
     # Create all tables
     Base.metadata.create_all(bind=engine)
-    
+
     # Create session
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db = SessionLocal()
-    
+
     try:
         # Check if admin user exists
-        from backend.src.database.models import User
+        from ..db.models import User
         admin = db.query(User).filter(User.email == "admin@example.com").first()
-        
+
         if not admin:
             # Create admin user
             admin_user = User(
@@ -42,12 +45,13 @@ def init_db():
             print("Admin user created successfully!")
         else:
             print("Admin user already exists.")
-            
+
     except Exception as e:
         print(f"Error initializing database: {e}")
         db.rollback()
     finally:
         db.close()
 
+
 if __name__ == "__main__":
-    init_db() 
+    init_db()
