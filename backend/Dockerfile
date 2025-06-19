@@ -18,8 +18,6 @@ ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 RUN echo "DATABASE_URL is $DATABASE_URL"
 
-# Initialize the database
-RUN python -m src.db.init_db
 
 # Run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "10000", "--app-dir", "."]
