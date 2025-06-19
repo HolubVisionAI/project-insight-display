@@ -6,7 +6,7 @@ const Footer = () => {
     { icon: Github, href: "#", label: "GitHub" },
     { icon: Linkedin, href: "#", label: "LinkedIn" },
     { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Mail, href: "mailto:jane@example.com", label: "Email" },
+    // { icon: Mail, href: "mailto:jane@example.com", label: "Email" },
   ];
 
   const quickLinks = [
@@ -75,7 +75,7 @@ const Footer = () => {
 
         <div className="border-t border-border mt-8 pt-8 text-center">
           <p className="text-muted-foreground">
-            © 2025 Jane Doe. All rights reserved. Built with React & TypeScript.
+            © 2025 Ihor Holub. All rights reserved. Built with React & TypeScript.
           </p>
         </div>
       </div>

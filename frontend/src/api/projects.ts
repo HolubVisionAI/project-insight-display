@@ -2,7 +2,7 @@
 import type {ProjectCreate, ProjectUpdate, Project} from "@/types/projects";
 import {apiFetch} from "@/api/apiClient.ts"
 
-const BASE = "/api/v1/projects";
+const BASE = `${import.meta.env.VITE_API_URL}/api/v1/projects`;
 
 // ——— Helpers ——————————————————————————————————
 

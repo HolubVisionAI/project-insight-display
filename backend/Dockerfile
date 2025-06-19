@@ -20,5 +20,7 @@ RUN echo "DATABASE_URL is $DATABASE_URL"
 
 
 # Run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "10000", "--app-dir", "."]
+#CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "10000", "--app-dir", "."]
+# Listen on Render's $PORT
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
 #CMD ["sleep", "infinity"]

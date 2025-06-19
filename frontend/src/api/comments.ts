@@ -1,7 +1,7 @@
 // src/api/comments
 import type {Comment} from "@/types/comments";
 
-const BASE = "/api/v1/projects";
+const BASE = `${import.meta.env.VITE_API_URL}/api/v1/projects`;
 
 export async function listCommentsApi(projectId: number): Promise<Comment[]> {
     const res = await fetch(`${BASE}/${projectId}/comments`);
@@ -37,7 +37,7 @@ export async function createCommentApi(
     if (!res.ok) {
         throw new Error(`Error posting comment: ${res.statusText}`);
     }
-     const data = (await res.json()) as {
+    const data = (await res.json()) as {
         id: number;
         author_name: string;
         content: string;

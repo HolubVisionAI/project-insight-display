@@ -4,6 +4,8 @@ export interface TokenResponse {
     token_type: string;
 }
 
+const BASE = `${import.meta.env.VITE_API_URL}/api/v1/auth`;
+
 export async function loginApi(
     email: string,
     password: string
@@ -12,7 +14,7 @@ export async function loginApi(
     formBody.append("username", email);
     formBody.append("password", password);
 
-    const resp = await fetch(`/api/v1/auth/login`, {
+    const resp = await fetch(`${BASE}/login`, {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: formBody.toString(),
@@ -41,7 +43,7 @@ export async function registerApi(
     password: string
 ): Promise<User> {
     const formBody = new URLSearchParams({name, email, password});
-    const resp = await fetch(`/api/v1/auth/register`, {
+    const resp = await fetch(`${BASE}/register`, {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: formBody.toString(),

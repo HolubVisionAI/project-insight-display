@@ -67,7 +67,7 @@ export function RegisterForm({
               type="text"
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
-              placeholder="Jane Doe"
+              placeholder="Ihor Holub"
               required
             />
           </div>

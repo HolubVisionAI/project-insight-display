@@ -12,8 +12,8 @@ import { Link } from "react-router-dom";
 const mockUsers = [
   {
     id: 1,
-    name: "Jane Doe",
-    email: "jane@example.com",
+    name: "Ihor Holub",
+    email: "ihor@example.com",
     role: "Admin",
     status: "Active",
     lastLogin: "2024-01-15",
