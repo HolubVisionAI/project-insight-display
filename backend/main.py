@@ -23,7 +23,7 @@ app = FastAPI(
 # during dev you can allow *; in prod lock this down
 origins = [
     "http://localhost:8080",
-    "https://project-insight-display.onrender.com",
+    "https://project-insight-display-1.onrender.com",
 ]
 
 app.add_middleware(
