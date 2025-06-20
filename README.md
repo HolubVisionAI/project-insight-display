@@ -55,7 +55,8 @@ Create a `.env` file in `backend/`:
 ```env
 DATABASE_URL=postgresql://user:pass@localhost:5432/portfolio
 JWT_SECRET=your_jwt_secret
-ALLOWED_ORIGINS=http://localhost:5173
+ACCESS_TOKEN_EXPIRE_MINUTES=your expired time
+ALLOWED_ORIGIN=your static site url
 ```
 
 Run database migrations / create tables:
@@ -95,14 +96,15 @@ Visit `http://localhost:5173` in your browser.
 
 ## 🛠️ Environment Variables
 
-| Name               | Description                                        |
-| ------------------ | -------------------------------------------------- |
-| `VITE_API_URL`     | URL of the backend API (used by the frontend)      |
-| `DATABASE_URL`     | SQLAlchemy DB URL                                  |
-| `JWT_SECRET`       | Secret key for signing JWTs                        |
-| `ALLOWED_ORIGINS`  | Comma-separated list for FastAPI CORS middleware   |
+| Name              | Description                                        |
+| ----------------- |----------------------------------------------------|
+| `VITE_API_URL`    | URL of the backend API (used by the frontend)      |
+| `DATABASE_URL`    | SQLAlchemy DB URL                                  |
+| `JWT_SECRET`      | Secret key for signing JWTs                        |
+| `ALLOWED_ORIGIN`  | Comma-separated list for FastAPI CORS middleware   |
+| `ACCESS_TOKEN_EXPIRE_MINUTES`  | expired time                          |
 | `SENDGRID_API_KEY` | (Optional) API key for sending emails via SendGrid |
-| `NOTIFY_EMAIL`     | (Optional) Recipient for automated notifications   |
+| `NOTIFY_EMAIL`    | (Optional) Recipient for automated notifications   |
 
 ---
 

@@ -13,6 +13,7 @@ Base.metadata.create_all(bind=engine)
 
 # Load environment variables
 load_dotenv()
+ALLOWED_ORIGIN = os.getenv("ALLOWED_ORIGIN")
 
 app = FastAPI(
     title="Portfolio Showcase API",
@@ -23,7 +24,7 @@ app = FastAPI(
 # during dev you can allow *; in prod lock this down
 origins = [
     "http://localhost:8080",
-    "https://project-insight-display-1.onrender.com",
+    ALLOWED_ORIGIN,
 ]
 
 app.add_middleware(
