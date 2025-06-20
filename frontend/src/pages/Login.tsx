@@ -28,8 +28,10 @@ export default function LoginPage() {
                         is_admin: data.user.is_admin,
                     });
 
-                    // 3) navigate as before
-                    navigate("/admin");
+                    if (data.user.is_admin)
+                        navigate("/admin");
+                    else
+                        navigate("/");
                 },
             }
         );

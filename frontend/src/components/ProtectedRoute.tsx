@@ -13,7 +13,6 @@ export function ProtectedRoute({children}: ProtectedRouteProps) {
 
     // If not logged in, redirect to /login
     // and remember the page they tried to visit
-    console.log(user);
     if (!initialized) {
         return null; // or <LoadingSpinner />
     }
