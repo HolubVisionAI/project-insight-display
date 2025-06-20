@@ -11,7 +11,7 @@ interface ProjectCardProps {
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
   const navigate = useNavigate();
-  console.log(project)
+  // console.log(project)
   const handleCardClick = () => {
     navigate(`/project/${project.id}`);
   };

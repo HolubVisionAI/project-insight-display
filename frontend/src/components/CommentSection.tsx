@@ -25,7 +25,7 @@ export default function CommentSection({projectId}: CommentSectionProps) {
     const {toast} = useToast();
     // If not logged in, redirect to login,
     // preserving where we came from in state so you can send them back:
-    console.log(comments);
+    // console.log(comments);
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
