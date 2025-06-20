@@ -1,14 +1,20 @@
-// src/hooks/useLogin.ts
-import { useMutation } from "@tanstack/react-query";
-import { loginApi, TokenResponse } from "@/api/auth";
+import {useMutation} from "@tanstack/react-query";
+import {loginApi, StoredAuth} from "@/api/auth";
+import {useAuth} from "@/hooks/useAuth";
 
 export function useLogin() {
-  return useMutation<
-    TokenResponse, // what the mutation returns
-    Error, // error type
-    { email: string; password: string } // variables you pass to mutate()
-  >({
-    // ⚠️ this key is required for the “options” overload
-    mutationFn: ({ email, password }) => loginApi(email, password),
-  });
+    const {login} = useAuth();
+
+    return useMutation<
+        StoredAuth,                        // the mutation returns StoredAuth
+        Error,                             // error type
+        { email: string; password: string } // variables you pass to mutate()
+    >({
+        mutationFn: ({email, password}) =>
+            loginApi(email, password),
+        onSuccess: (authData) => {
+            // Persist into React context (and localStorage via the hook)
+            login(authData);
+        },
+    });
 }

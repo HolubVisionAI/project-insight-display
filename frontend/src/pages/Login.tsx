@@ -8,33 +8,15 @@ import {LoginForm} from "@/components/LoginForm";
 export default function LoginPage() {
     const navigate = useNavigate();
     const {login: setUser} = useAuth();           // ← get the login function from context
-    const {mutate, isLoading, error} = useLogin();
+    const {mutate: login, isLoading, error} = useLogin();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = () => {
-        mutate(
-            {email, password},
-            {
-                onSuccess(data) {
-                    // 1) persist your token however you like
-                    localStorage.setItem("access_token", data.access_token);
-                    console.log(data);
-                    // 2) update React context so Header will re-render
-                    setUser({
-                        name: data.user.name,          // assume your API returns some user object
-                        is_admin: data.user.is_admin,
-                    });
 
-                    if (data.user.is_admin)
-                        navigate("/admin");
-                    else
-                        navigate("/");
-                },
-            }
-        );
+        login({email, password});
     };
 
     return (
