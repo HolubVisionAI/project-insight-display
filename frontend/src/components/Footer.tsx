@@ -22,7 +22,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand Section */}
           <div>
-            <h3 className="font-bold text-xl text-foreground mb-4">Jane Doe</h3>
+            <h3 className="font-bold text-xl text-foreground mb-4">Ihor Holub</h3>
             <p className="text-muted-foreground mb-4">
               Full-Stack Developer passionate about creating innovative web solutions
               that make a difference.
@@ -64,12 +64,12 @@ const Footer = () => {
             <p className="text-muted-foreground mb-2">
               Let's discuss your next project or collaboration opportunity.
             </p>
-            <a
-              href="mailto:jane@example.com"
-              className="text-primary hover:underline"
-            >
-              jane@example.com
-            </a>
+            {/*<a*/}
+            {/*  href="mailto:jane@example.com"*/}
+            {/*  className="text-primary hover:underline"*/}
+            {/*>*/}
+            {/*  jane@example.com*/}
+            {/*</a>*/}
           </div>
         </div>
 
