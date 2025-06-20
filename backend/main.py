@@ -25,7 +25,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:8080",  # your Vite dev server
-        # add any other front-end origins you use
+        "https://project-insight-display-1.onrender.com/"
     ],
     allow_credentials=True,
     allow_methods=["*"],  # GET, POST, OPTIONS, etc.
