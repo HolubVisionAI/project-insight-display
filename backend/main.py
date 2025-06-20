@@ -21,15 +21,17 @@ app = FastAPI(
 )
 
 # during dev you can allow *; in prod lock this down
+origins = [
+    "http://localhost:8080",
+    "https://project-insight-display.onrender.com",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8080",  # your Vite dev server
-        "https://project-insight-display-1.onrender.com/"
-    ],
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # GET, POST, OPTIONS, etc.
-    allow_headers=["*"],  # Content-Type, Authorization, etc.
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Include routers
