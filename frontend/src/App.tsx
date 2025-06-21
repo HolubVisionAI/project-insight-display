@@ -1,9 +1,10 @@
-//App.tsx
+// App.tsx
+import {FC, useEffect} from 'react';
 import {Toaster} from "@/components/ui/toaster";
 import {Toaster as Sonner} from "@/components/ui/sonner";
 import {TooltipProvider} from "@/components/ui/tooltip";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {BrowserRouter,HashRouter, Routes, Route} from "react-router-dom";
+import {HashRouter, Routes, Route} from "react-router-dom";
 import Index from "./pages/Index";
 import ProjectDetail from "./pages/ProjectDetail";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -18,13 +19,25 @@ import {ProtectedRoute} from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-    <QueryClientProvider client={queryClient}>
-        <HashRouter>
-            <TooltipProvider>
-                <AuthProvider>
-                    <Toaster/>
-                    <Sonner/>
+const App: FC = () => {
+    // to prevent sleep backend
+    useEffect(() => {
+        const keepAlive = () => {
+            fetch('/ping').catch(() => {
+            });
+        };
+        keepAlive();
+        const id = setInterval(keepAlive, 14 * 60 * 1000);
+        return () => clearInterval(id);
+    }, []);
+
+    return (
+        <QueryClientProvider client={queryClient}>
+            <HashRouter>
+                <TooltipProvider>
+                    <AuthProvider>
+                        <Toaster/>
+                        <Sonner/>
                         <Routes>
                             <Route path="/" element={<Index/>}/>
                             <Route path="/project/:id" element={<ProjectDetail/>}/>
@@ -60,16 +73,16 @@ const App = () => (
                                     </ProtectedRoute>
                                 }
                             />
-
                             <Route path="/login" element={<Login/>}/>
                             <Route path="/register" element={<Register/>}/>
                             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>
-                </AuthProvider>
-            </TooltipProvider>
-        </HashRouter>
-    </QueryClientProvider>
-);
+                    </AuthProvider>
+                </TooltipProvider>
+            </HashRouter>
+        </QueryClientProvider>
+    );
+};
 
 export default App;
