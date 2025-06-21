@@ -23,7 +23,7 @@ const App: FC = () => {
     // to prevent sleep backend
     useEffect(() => {
         const keepAlive = () => {
-            fetch('/ping').catch(() => {
+            fetch(`${import.meta.env.VITE_API_URL}/ping`).catch(() => {
             });
         };
         keepAlive();
