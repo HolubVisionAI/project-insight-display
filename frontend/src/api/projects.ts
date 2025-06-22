@@ -8,7 +8,11 @@ const BASE = `${import.meta.env.VITE_API_URL}/api/v1/projects`;
 
 /** Always include the bearer token if present */
 function getAuthHeaders() {
-    const token = localStorage.getItem("access_token");
+    const raw = localStorage.getItem("auth");
+    const data = JSON.parse(raw);
+    // pull out the token
+    const token: string | undefined = data.access_token;
+    // const token = localStorage.getItem("access_token");
     return token ? {Authorization: `Bearer ${token}`} : {};
 }
 
@@ -61,11 +65,17 @@ export async function createProjectApi(
 
 /** GET /api/v1/projects */
 export async function listProjectsApi(): Promise<Project[]> {
-    const token = localStorage.getItem("access_token");
+    const raw = localStorage.getItem("auth");
+
+    const data = JSON.parse(raw);
+    // pull out the token
+    const token: string | undefined = data.access_token;
+
     const res = await apiFetch(`${BASE}/`, {
-        headers: token
-            ? {Authorization: `Bearer ${token}`}
-            : undefined,
+        headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(),
+        },
     });
     const payload = await res.json().catch(() => {
         if (!res.ok) throw new Error(`Request failed ${res.status}`);
@@ -101,9 +111,10 @@ export async function deleteProjectApi(id: number): Promise<void> {
     const token = localStorage.getItem("access_token");
     const res = await apiFetch(`${BASE}/${id}`, {
         method: "DELETE",
-        headers: token
-            ? {Authorization: `Bearer ${token}`}
-            : undefined,
+        headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(),
+        },
     });
     if (!res.ok) {
         let payload: any = {};
