@@ -1,66 +1,158 @@
-from fastapi import APIRouter, Depends, WebSocket
+# src/routes/chat.py
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-import json
+from typing import Optional
+from datetime import datetime
+import os
+from huggingface_hub import InferenceClient
+from fastapi.concurrency import run_in_threadpool
+
 from ..db import models, schemas
-from ..db.database import get_db
+from ..db.database import get_db, SessionLocal
 
 router = APIRouter(prefix="/api/v1/chat", tags=["chat"])
 
-
-def get_rule_based_response(message: str) -> str:
-    """Simple rule-based chatbot response."""
-    message = message.lower()
-    if "hello" in message or "hi" in message:
-        return "Hello! How can I help you today?"
-    elif "project" in message:
-        return "I can help you find projects. What kind of project are you looking for?"
-    elif "contact" in message:
-        return "You can reach us through the contact form or email."
-    else:
-        return "I'm not sure I understand. Could you please rephrase your question?"
+# — load HF client once —
+HF_TOKEN = os.getenv("HF_API_TOKEN")
+HF_MODEL = os.getenv("HF_MODEL")
+if not HF_TOKEN:
+    raise RuntimeError("HF_API_TOKEN environment variable is required")
+hf_client = InferenceClient(api_key=HF_TOKEN)
 
 
-@router.post("", response_model=schemas.ChatResponse)
-def chat_message(
-        message: schemas.ChatMessage,
-        db: Session = Depends(get_db)
+async def get_rule_based_response(
+        session_id: int,
+        message: str,
+        db: Session
+) -> str:
+    # 1) Load prior messages
+    # db_msgs = (
+    #     db.query(models.ChatMessage)
+    #       .filter_by(session_id=str(session_id))
+    #       .order_by(models.ChatMessage.timestamp.asc())
+    #       .all()
+    # )
+    #
+    # # 2) Build HF‐style history, using only plain strings
+    # history = [
+    #     {"role": "system", "content": "You are a helpful assistant."}
+    # ]
+    # for m in db_msgs:
+    #     history.append({
+    #         "role": m.sender.value,   # <-- enum → str
+    #         "content": m.message
+    #     })
+    # # add the new user turn
+    # history.append({"role": "user", "content": message})
+    #
+    # for m in db_msgs:
+    #     history.append({
+    #         "role": m.sender.value,  # user or bot
+    #         "content": m.message
+    #     })
+
+    # 3) Call the model
+    result = await run_in_threadpool(
+        hf_client.chat_completion,
+        [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": message}
+        ],
+        model=HF_MODEL,
+        max_tokens=150,
+    )
+    # result = hf_client.chat_completion(
+    #     [
+    #         {"role": "system", "content": "You are a helpful assistant."},
+    #         {"role": "user", "content": message}
+    #     ],
+    #     model="mistralai/Mistral-7B-Instruct-v0.3",
+    #     max_tokens=50
+    # )
+    return result.choices[0].message.content
+
+
+@router.post("", response_model=schemas.ChatMessageOut)
+async def chat_message(
+        payload: schemas.ChatMessageIn,
+        db: Session = Depends(get_db),
 ):
-    # Store user message
-    db_message = models.ChatMessage(
-        session_id=message.session_id,
+    """
+    Send a single message via REST.
+    If no session_id is provided, create a new ChatSession.
+    """
+    # 1) Ensure or create session
+    if payload.session_id:
+        session = db.query(models.ChatSession).get(payload.session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+    else:
+        session = models.ChatSession(created_at=datetime.now())
+        db.add(session)
+        db.commit()
+        db.refresh(session)
+
+    # 2) Persist user message
+    user_msg = models.ChatMessage(
+        session_id=session.id,
         sender="user",
-        message=message.message
+        message=payload.message,
+        timestamp=datetime.now(),
     )
-    db.add(db_message)
+    db.add(user_msg)
 
-    # Generate and store bot response
-    response = get_rule_based_response(message.message)
-    db_response = models.ChatMessage(
-        session_id=message.session_id,
+    # 3) Generate & persist bot reply
+    reply_text = await get_rule_based_response(session.id, payload.message, db)
+    bot_msg = models.ChatMessage(
+        session_id=session.id,
         sender="bot",
-        message=response
+        message=reply_text,
+        timestamp=datetime.now(),
     )
-    db.add(db_response)
-
+    db.add(bot_msg)
     db.commit()
-    return schemas.ChatResponse(session_id=message.session_id, reply=response)
+
+    return bot_msg
 
 
-@router.websocket("/ws/{session_id}")
-async def websocket_endpoint(websocket: WebSocket, session_id: str):
-    await websocket.accept()
-    try:
-        while True:
-            data = await websocket.receive_text()
-            message_data = json.loads(data)
+@router.get(
+    "/history",
+    response_model=schemas.ChatHistoryOut,
+    summary="Fetch or create a chat session and its full history"
+)
+def get_history(
+        session_id: Optional[str] = Query(
+            None,
+            description="Existing session to load; omit to start a new one"
+        ),
+        db: Session = Depends(get_db),
+):
+    """
+    If `session_id` is provided, return that session's messages (oldest first).
+    Otherwise create a new session and return it with an empty message list.
+    """
+    if session_id:
+        # load existing session
+        session = db.get(models.ChatSession, session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
 
-            if message_data["event"] == "message":
-                response = get_rule_based_response(message_data["data"]["message"])
-                await websocket.send_json({
-                    "event": "reply",
-                    "data": {"reply": response}
-                })
-    except Exception as e:
-        print(f"WebSocket error: {e}")
-    finally:
-        await websocket.close()
+        msgs = (
+            db.query(models.ChatMessage)
+            .filter_by(session_id=session.id)
+            .order_by(models.ChatMessage.timestamp.asc())
+            .all()
+        )
+    else:
+        # create brand‐new session
+        session = models.ChatSession()
+        db.add(session)
+        db.commit()
+        db.refresh(session)
+        msgs = []
+
+    # return both the session_id and the list of messages
+    return schemas.ChatHistoryOut(
+        session_id=str(session.id),
+        messages=msgs
+    )

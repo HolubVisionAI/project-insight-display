@@ -100,15 +100,37 @@ class TokenData(BaseModel):
     email: Optional[str] = None
 
 
-# Chat schemas
-class ChatMessage(BaseModel):
-    session_id: str
-    message: str
+class ChatMessageIn(BaseModel):
+    """Incoming payload for POST /api/v1/chat"""
+    session_id: Optional[str] = None
+    # accept “text” in the JSON, but populate .message
+    message: str = Field(..., alias="text")
+
+    # allow populating by alias
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ChatResponse(BaseModel):
+    """What our POST /api/v1/chat endpoint returns"""
     session_id: str
     reply: str
+
+
+class ChatMessageOut(BaseModel):
+    """What GET /api/v1/chat/{session_id}/history returns"""
+    id: int
+    session_id: str
+    sender: str
+    message: str
+    timestamp: datetime
+
+    # enable ORM mode under Pydantic v2
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ChatHistoryOut(BaseModel):
+    session_id: str
+    messages: List[ChatMessageOut]
 
 
 # Analytics schemas

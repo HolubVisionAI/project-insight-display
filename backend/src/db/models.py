@@ -1,7 +1,10 @@
-from sqlalchemy import Column, Integer, String, Boolean, Text, ARRAY, ForeignKey, DateTime, CheckConstraint
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, Boolean, Text, ARRAY, ForeignKey, DateTime, CheckConstraint, Enum
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
+import enum
 
 Base = declarative_base()
 
@@ -56,15 +59,43 @@ class PageView(Base):
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class ChatMessage(Base):
-    __tablename__ = "chat_messages"
+class SenderType(enum.Enum):
+    user = "user"
+    bot = "bot"
+
+
+class ChatSession(Base):
+    __tablename__ = "chat_sessions"
 
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(String, nullable=False)
-    sender = Column(String(10), nullable=False)
-    message = Column(Text, nullable=False)
-    timestamp = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 
+    messages = relationship(
+        "ChatMessage",
+        back_populates="session",
+        cascade="all, delete-orphan",
+    )
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
     __table_args__ = (
-        CheckConstraint("sender IN ('user', 'bot')", name="valid_sender"),
+        # still useful if you prefer strings over Enum
+        CheckConstraint("sender IN ('user','bot')", name="valid_sender"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(Integer, ForeignKey("chat_sessions.id"), nullable=False, index=True)
+    sender = Column(Enum(SenderType, name="sender_enum"), nullable=False)
+    message = Column(Text, nullable=False)
+    timestamp = Column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    session = relationship(
+        "ChatSession",
+        back_populates="messages",
     )
