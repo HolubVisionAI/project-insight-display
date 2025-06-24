@@ -58,23 +58,14 @@ export async function createProjectApi(
         },
         body: JSON.stringify(project),
     });
-
     return handleResponse<Project>(resp);
 }
 
-
 /** GET /api/v1/projects */
 export async function listProjectsApi(): Promise<Project[]> {
-    const raw = localStorage.getItem("auth");
-
-    const data = JSON.parse(raw);
-    // pull out the token
-    const token: string | undefined = data.access_token;
-
     const res = await apiFetch(`${BASE}/`, {
         headers: {
             "Content-Type": "application/json",
-            ...getAuthHeaders(),
         },
     });
     const payload = await res.json().catch(() => {
