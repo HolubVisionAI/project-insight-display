@@ -144,7 +144,6 @@ export async function getProjectApi(id: number): Promise<Project> {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
-            ...getAuthHeaders(),
         },
     });
     if (!resp.ok) {
