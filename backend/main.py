@@ -7,6 +7,7 @@ from src.db.models import Base
 from src.db.database import engine
 from src.routes import auth, projects, analytics
 from src.routes import chat
+from src.routes import signaling_server
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -29,7 +30,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # allow everything (no credentials)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,7 +41,7 @@ app.include_router(auth.router)
 app.include_router(projects.router)
 app.include_router(analytics.router)
 app.include_router(chat.router)
-
+app.include_router(signaling_server.router)
 
 @app.get("/")
 async def root():
