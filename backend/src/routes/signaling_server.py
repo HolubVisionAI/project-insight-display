@@ -58,3 +58,14 @@ async def guest_join():
     else:
         # defensive
         raise HTTPException(400, "All guests already joined")
+
+
+@router.get("/clear")
+async def clear_state():
+    """
+    Reset the invite link, guest count, and expected guests back to defaults.
+    """
+    state.invite_link = None
+    state.guest_count = 0
+    state.expected_guests = 0
+    return {"status": "state cleared"}
