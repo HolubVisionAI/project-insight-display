@@ -9,6 +9,7 @@ class InviteState(BaseModel):
     invite_link: Optional[str] = None
     guest_count: int = 0
     expected_guests: int = 0
+    share_link: Optional[str] = None
 
 
 router = APIRouter(prefix="/api/v1/signalling", tags=["singaling"])
@@ -36,6 +37,14 @@ async def get_invite():
     return {"invite_link": state.invite_link}
 
 
+@router.get("/share_link")
+async def get_invite():
+    """
+    human poll this until state.invite_link is set.
+    """
+    return {"invite_link": state.share_link}
+
+
 @router.get("/guest_count")
 async def get_guest_count():
     """
@@ -45,6 +54,17 @@ async def get_guest_count():
         "guest_count": state.guest_count,
         "expected_guests": state.expected_guests,
     }
+
+
+@router.post("/share_link")
+async def set_share_link():
+    """
+    Host calls this once it has the share link.
+    """
+    if state.invite_link is None:
+        raise HTTPException(400, "Invite link must be set before share link")
+    state.share_link = state.invite_link
+    return {"status": "share link registered"}
 
 
 @router.post("/guest_join")
@@ -68,4 +88,5 @@ async def clear_state():
     state.invite_link = None
     state.guest_count = 0
     state.expected_guests = 0
+    state.share_link = None
     return {"status": "state cleared"}
